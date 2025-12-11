@@ -1,32 +1,51 @@
 /* ============================================================
-   JUMITECH — INFINITE LOOP SCROLL FOR RIGHT SIDEBAR
+   JUMITECH — AUTO-SCROLL + INFINITE LOOP SIDEBAR
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  var box = document.getElementById("jumi-sidebar-scroll");
+  const box = document.getElementById("jumi-sidebar-scroll");
   if (!box) return;
 
-  var cards = Array.from(box.children);
-
-  // Duplicate content to create the loop illusion
+  // Duplicate cards for looping effect
+  const cards = Array.from(box.children);
   cards.forEach(c => box.appendChild(c.cloneNode(true)));
 
-  // Scroll back to middle instantly when reaching edges
-  var resetPoint = box.scrollHeight / 2;
+  // Loop reset point
+  let resetPoint = box.scrollHeight / 2;
 
-  box.addEventListener("scroll", function () {
-    // Scroll Down → loop back to top
+  // Auto-scroll speed (adjust for faster/slower motion)
+  let autoSpeed = 0.25; // pixels per page pixel scrolled
+
+  // Track previous scroll
+  let lastPageScroll = window.scrollY;
+
+  function loopScroll() {
+    let pageScrollNow = window.scrollY;
+    let delta = pageScrollNow - lastPageScroll;
+
+    // Auto-scroll sidebar based on page scroll speed
+    box.scrollTop += delta * autoSpeed;
+
+    // Loop forward
     if (box.scrollTop >= resetPoint + 10) {
-      box.scrollTop = 1; // jump near start
+      box.scrollTop = 1;
     }
 
-    // Scroll Up → loop to bottom
+    // Loop backward
     else if (box.scrollTop <= 0) {
       box.scrollTop = resetPoint - 10;
     }
-  });
 
-  // Start at midpoint so scroll works in both directions
+    lastPageScroll = pageScrollNow;
+
+    requestAnimationFrame(loopScroll);
+  }
+
+  // Start centered
   box.scrollTop = resetPoint / 2;
+  lastPageScroll = window.scrollY;
+
+  // Begin animation loop
+  requestAnimationFrame(loopScroll);
 });
